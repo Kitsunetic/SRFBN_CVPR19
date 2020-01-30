@@ -33,6 +33,7 @@ class FeedbackBlock(nn.Module):
     self.uptranBlocks = nn.ModuleList()
     self.downtranBlocks = nn.ModuleList()
 
+    # G(num_groups)만큼 FB의 block을 생성
     for idx in range(self.num_groups):
       self.upBlocks.append(DeconvBlock(num_features, num_features,
                        kernel_size=kernel_size, stride=stride, padding=padding,
@@ -40,6 +41,7 @@ class FeedbackBlock(nn.Module):
       self.downBlocks.append(ConvBlock(num_features, num_features,
                        kernel_size=kernel_size, stride=stride, padding=padding,
                        act_type=act_type, norm_type=norm_type, valid_padding=False))
+      # 0번 블록은 tran(residual한 구조)이 아님
       if idx > 0:
         self.uptranBlocks.append(ConvBlock(num_features*(idx+1), num_features,
                            kernel_size=1, stride=1,
