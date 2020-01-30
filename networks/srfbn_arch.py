@@ -149,6 +149,7 @@ class SRFBN(nn.Module):
     self.add_mean = MeanShift(rgb_mean, rgb_std, 1)
 
   def forward(self, x):
+    # 매 forward가 실행될 때 마다 FB의 state를 초기화? -> 왜 하는 건지는 잘 모르겠음
     self._reset_state()
 
     x = self.sub_mean(x)
@@ -163,9 +164,11 @@ class SRFBN(nn.Module):
     x = self.conv_in(x)
     x = self.feat_in(x)
 
+    # FB -> RB 를 num_steps 회 반복. 각각의 결과를 outs에 저장
     outs = []
     for _ in range(self.num_steps):
       # FB block, F_in^t
+      # step을 밟아가면서 FB block에 LR feature을 쌓아감.
       h = self.block(x)
 
       # RB block, I_SR^t
@@ -173,6 +176,7 @@ class SRFBN(nn.Module):
       h = self.add_mean(h)
       outs.append(h)
 
+    # num_steps회 반복된 결과를 리턴
     return outs # return output of every timesteps
 
   def _reset_state(self):
